@@ -1,4 +1,4 @@
 # Ignorar los datasets pero la carpeta que si exista
-datasets/*
+ia_projects/datasets/*
 
-trained_models/*
+ia_projects/trained_models/*

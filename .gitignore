@@ -1,0 +1,4 @@
+# Ignorar los datasets pero la carpeta que si exista
+datasets/*
+
+trained_models/*

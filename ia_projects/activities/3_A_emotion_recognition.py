@@ -2,11 +2,11 @@ import cv2 as cv
 import os 
 
 faceRecognizer = cv.face.FisherFaceRecognizer_create()
-faceRecognizer.read('./trained_models/FisherFaceEmotions.xml')
+faceRecognizer.read('./ia_projects/trained_models/FisherFaceEmotions.xml')
 faces = ['angry', 'happy', 'sad']
 
 cap = cv.VideoCapture(0)
-rostro = cv.CascadeClassifier('./haarcascades/haarcascade_frontalface_alt.xml')
+rostro = cv.CascadeClassifier('./ia_projects/haarcascades/haarcascade_frontalface_alt.xml')
 while True:
     ret, frame = cap.read()
     if ret == False: break

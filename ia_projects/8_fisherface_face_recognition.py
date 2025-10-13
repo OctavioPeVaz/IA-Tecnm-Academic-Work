@@ -2,8 +2,10 @@ import cv2 as cv
 import os 
 
 faceRecognizer = cv.face.FisherFaceRecognizer_create()
-faceRecognizer.read('FisherFace.xml')
-faces =['darren', 'octavio', 'ximena']
+faceRecognizer.read('FisherFace48Size.xml')
+faces = ['darren', 'josefa', 'nate', 'octavio', 'ximena']
+#faces = ['angry', 'happy', 'sad']
+
 cap = cv.VideoCapture(0)
 rostro = cv.CascadeClassifier('haarcascades/haarcascade_frontalface_alt.xml')
 while True:
@@ -14,9 +16,10 @@ while True:
     rostros = rostro.detectMultiScale(gray, 1.3, 3)
     for(x, y, w, h) in rostros:
         frame2 = cpGray[y:y+h, x:x+w]
-        frame2 = cv.resize(frame2,  (100,100), interpolation=cv.INTER_CUBIC)
+        frame2 = cv.resize(frame2,  (48,48), interpolation=cv.INTER_CUBIC)
         result = faceRecognizer.predict(frame2)
         cv.putText(frame, '{}'.format(result), (x,y-20), 1,3.3, (255,255,0), 1, cv.LINE_AA)
+        
         if result[1] < 500:
             cv.putText(frame,'{}'.format(faces[result[0]]),(x,y-25),2,1.1,(0,255,0),1,cv.LINE_AA)
             cv.rectangle(frame, (x,y),(x+w,y+h),(0,255,0),2)

@@ -5,7 +5,10 @@ import time
 
 start_time = time.time()
 
-dataSet = 'datasets/faces_dataset'
+#dataSet = 'datasets/faces_dataset'
+dataSet = 'datasets/faces_dataset_48_size'
+#dataSet = 'datasets/emotions_happy_sad_angry_dataset'
+
 faces  = os.listdir(dataSet)
 print(faces)
 
@@ -18,13 +21,13 @@ for face in faces:
         labels.append(label)
         facesData.append(cv.imread(facePath+'/'+faceName,0))
     label = label + 1
-print(np.count_nonzero(np.array(labels)==0)) 
+#print(np.count_nonzero(np.array(labels)==0)) 
 
 faceRecognizer = cv.face.EigenFaceRecognizer_create()
 faceRecognizer.train(facesData, np.array(labels))
 
 print("Modelo Entrenado, Escribiendo XML")
-faceRecognizer.write('Eigenface.xml')
+faceRecognizer.write('Eigenface48Size.xml')
 print("Guardado")
 
 end_time = time.time()
@@ -43,6 +46,7 @@ else:
 
 print(f"Tiempo total de ejecución: {time_text}")
 
+#['darren', 'josefa', 'nate', 'octavio', 'ximena']
 #Modelo Entrenado, Escribiendo XML
 #Guardado
-#Tiempo total de ejecución: 46 min y 23 seg
+#Tiempo total de ejecución: 8 min y 49 seg

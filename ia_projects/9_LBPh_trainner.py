@@ -5,7 +5,9 @@ import time
 
 start_time = time.time()
 
-dataSet = 'datasets/faces_dataset'
+#dataSet = 'datasets/faces_dataset'
+dataSet = 'datasets/faces_dataset_48_size'
+
 faces  = os.listdir(dataSet)
 print(faces)
 
@@ -23,7 +25,7 @@ faceRecognizer = cv.face.LBPHFaceRecognizer_create()
 faceRecognizer.train(facesData, np.array(labels))
 
 print("Modelo Entrenado, Escribiendo XML")
-faceRecognizer.write('LBPHFace.xml')
+faceRecognizer.write('LBPHFace48Size.xml')
 print("Guardado")
 
 end_time = time.time()

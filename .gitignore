@@ -1,4 +1,6 @@
 # Ignorar los datasets pero la carpeta que si exista
 ia_projects/datasets/*
+!ia_projects/datasets/.gitkeep
 
 ia_projects/trained_models/*
+!ia_projects/trained_models/.gitkeep

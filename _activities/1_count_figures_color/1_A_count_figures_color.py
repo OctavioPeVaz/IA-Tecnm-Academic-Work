@@ -4,7 +4,7 @@ import sys
 
 sys.setrecursionlimit(100000)
 
-img = cv.imread("assets/figura.png", 1)
+img = cv.imread("./assets/figura.png", 1)
 img2 = cv.cvtColor(img, cv.COLOR_BGR2HSV)
 
 umbralBajo=(40, 80, 80  )
@@ -32,7 +32,7 @@ def contar_figuras_color(mascara):
         if mascara[y, x] == 0:
             return
         
-        # Si es pixel blanco (255) lo borramos
+        # Si es pixel blanco (255) lo borramos lo cambiamos a 0
         mascara[y, x] = 0
 
         # Volvemos a llamar la funcion recursivamente para revisar los vecinos

@@ -1,84 +1,121 @@
 import cv2
-import mediapipe as mp
 import math
+import numpy as np
+import mediapipe as mp
 
-mp_hands = mp.solutions.hands
-mp_drawing = mp.solutions.drawing_utils
-hands = mp_hands.Hands(static_image_mode=False, max_num_hands=2, min_detection_confidence=0.5)
+mp_hands_solutions = mp.solutions.hands
+mp_drawing_utils = mp.solutions.drawing_utils
 
-cap = cv2.VideoCapture(0)
+hands_detector = mp_hands_solutions.Hands(
+    static_image_mode=False, 
+    max_num_hands=2, 
+    min_detection_confidence=0.5
+)
 
-DEFAULT_SIZE = 100
-last_size = DEFAULT_SIZE
+# Iniciar caputra de video de camara 0
+video_capture = cv2.VideoCapture(0)
+
+DEFAULT_SQUARE_SIZE = 50
+current_square_size = DEFAULT_SQUARE_SIZE
+current_angle_rad  = 0.0
 
 
 while True:
-    ret, frame = cap.read()
-    if not ret:
+    is_frame_read, frame = video_capture.read()
+    
+    if not is_frame_read:
         break
+
     frame= cv2.flip(frame, 1)
+
     # Convertir imagen a RGB (MediaPipe usa RGB)
     frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    results = hands.process(frame_rgb)
 
-     # Obtener dimensiones del frame
-    h, w, _ = frame.shape
+    
+    hand_detection_results = hands_detector.process(frame_rgb)
+
+    # Obtener dimensiones frame
+    height, width, _ = frame.shape
 
     # Calcular centro
-    cx, cy = w // 2, h // 2
-
+    center_x = width // 2
+    center_y = height // 2
 
     # Variables para guardar coordenadas
-    left_index = None
-    right_index = None
+    left_index_coords = None
+    right_index_coords = None
     
    
-    if results.multi_hand_landmarks and results.multi_handedness:
-        for hand_landmarks, handedness in zip(results.multi_hand_landmarks, results.multi_handedness):
-            label = handedness.classification[0].label  # 'Left' o 'Right'
-            #print(label)
-            h, w, _ = frame.shape
+    if hand_detection_results.multi_hand_landmarks and hand_detection_results.multi_handedness:
+
+        for hand_landmarks, handedness in zip(hand_detection_results.multi_hand_landmarks, hand_detection_results.multi_handedness):
+            # Obtiene etiqueta 'Left' o 'Right'
+            label = handedness.classification[0].label 
+
+            # Obtiene coordenadas de la punta del índice (landmark 8)
+            index_finger_tip = hand_landmarks.landmark[8]
             
-            # Coordenadas del índice (landmark 8)
-            index_tip = hand_landmarks.landmark[8]
-            x, y = int(index_tip.x * w), int(index_tip.y * h)
+            # Covertir coordenadas normalizada (0.0 a 1.0) a coordenadas de pixeles
             
-            # Guardar según la mano
+            pixel_x = int(index_finger_tip.x * width)
+            pixel_y = int(index_finger_tip.y * height)
+             
+            # Guardar coordenadas de acuerdo la mano
             if label == 'Left':
-                left_index = (x, y)
+                left_index_coords = (pixel_x, pixel_y)
             elif label == 'Right':
-                right_index = (x, y)
+                right_index_coords = (pixel_x, pixel_y)
 
-            # Dibujar los landmarks (opcional)
-            mp_drawing.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
+            # Dibujar los landmarks de las manos
+            mp_drawing_utils.draw_landmarks(frame, hand_landmarks, mp_hands_solutions.HAND_CONNECTIONS)
 
-        # Si ambas manos detectadas, dibujar línea entre los dos puntos y actualizar tamaño
-        if left_index and right_index:
-            cv2.line(frame, left_index, right_index, (0, 255, 0), 3)
+        
+        if left_index_coords and right_index_coords:
+            # Dibujar línea/distancia entre los 2 indices
+            cv2.line(frame, left_index_coords, right_index_coords, (0, 255, 0), 3)
 
-            # Calcular distancia entre los dedos
-            dist = math.hypot(right_index[0] - left_index[0], right_index[1] - left_index[1])
+            # Calculo distancia entre los indices
+            finger_distance = math.hypot(
+                right_index_coords[0] - left_index_coords[0], 
+                right_index_coords[1] - left_index_coords[1]
+            )
 
-            # Calcular nuevo tamaño
-            new_size = int(100 + dist)
+            # Calcular nuevo tamaño del cuadrado
+            new_square_size = int(DEFAULT_SQUARE_SIZE + finger_distance)
+            current_square_size = new_square_size
 
-            last_size = new_size
+            # Calcular nuevo angulo del cuadrado
+            delta_x = right_index_coords[0] - left_index_coords[0]
+            delta_y = right_index_coords[1] - left_index_coords[1]
 
+            current_angle_rad = math.atan2(delta_y, delta_x)
 
-    # Calcular las esquinas del cuadrado (centrado)
-    half = last_size // 2
-    top_left = (cx - half, cy - half)
-    bottom_right = (cx + half, cy + half)
+    
+    half = current_square_size // 2
+
+    cos_angle = math.cos(current_angle_rad)
+    sin_angle = math.sin(current_angle_rad)
+
+    current_corners_rotation = [
+        (-half, -half),
+        ( half, -half),
+        ( half,  half),
+        (-half,  half)
+    ]
+
+    rotated_corners = []
+
+    # Calcular coordenadas de las 2 esquinas del cuadrado para escalar siempre al centro
+    top_left        = (center_x - half, center_y - half)
+    bottom_right    = (center_x + half, center_y + half)
 
     # Dibujar el cuadrado
     cv2.rectangle(frame, top_left, bottom_right, (255, 255, 255), 3)
 
-
-
-    cv2.imshow("Line", frame)
+    cv2.imshow("Escalado y Rotacion Cuadrado", frame)
 
     if cv2.waitKey(1) & 0xFF == 27:
         break
 
-cap.release()
+video_capture.release()
 cv2.destroyAllWindows()

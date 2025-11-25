@@ -1,6 +1,11 @@
+.venv/
+
 # Ignorar los datasets pero la carpeta que si exista
 datasets/*
 !datasets/.gitkeep
 
 trained_models/*
+!trained_models/.gitkeep
+
+trained_models/cache/*
 !trained_models/.gitkeep

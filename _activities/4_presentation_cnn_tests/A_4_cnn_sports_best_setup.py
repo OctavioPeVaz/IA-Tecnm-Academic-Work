@@ -1,11 +1,15 @@
-import numpy as np
 import os
 import re
+
+import numpy as np
 import matplotlib.pyplot as plt
+
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
-import keras
+
 import tensorflow as tf
+
+import keras
 from keras.utils import to_categorical
 from keras.models import Sequential,Model
 from keras.layers import Input
@@ -21,7 +25,7 @@ datasetPath = './datasets/sportimages/sportimages'
 destinationModelPath = './trained_models/cnn/sports'
 
 dirname = os.path.join(os.getcwd(), datasetPath)
-imgpath = dirname + os.sep 
+imgpath = dirname
 
 images = []
 directories = []
@@ -29,20 +33,25 @@ dircount = []
 prevRoot=''
 cant=0
 
+
 print("leyendo imagenes de ",imgpath)
 
 # READ ALL THE IMAGES OF THE DATASET RECURSIVELY
 for root, dirnames, filenames in os.walk(imgpath):
+
     for filename in filenames:
+
         if re.search(r'\.(jpg|jpeg|png|bmp|tiff)$', filename):
             cant=cant+1
             filepath = os.path.join(root, filename)
             image = plt.imread(filepath)
+
             if(len(image.shape)==3):
                 
                 images.append(image)
             b = "Leyendo..." + str(cant)
             print (b, end="\r")
+
             if prevRoot !=root:
                 print(root, cant)
                 prevRoot=root
@@ -135,15 +144,15 @@ print(train_X.shape,valid_X.shape,train_label.shape,valid_label.shape)
 # Define learning rate, Epoch
 
 #declaramos variables con los parámetros de configuración de la red
-INIT_LR = 1e-2 # Valor inicial de learning rate. El valor 1e-3 corresponde con 0.001
-epochs = 37 # Cantidad de iteraciones completas al conjunto de imagenes de entrenamiento
-batch_size = 32 # cantidad de imágenes que se toman a la vez en memoria
+INIT_LR = 1e-3 # Valor inicial de learning rate. El valor 1e-3 corresponde con 0.001
+epochs = 10 # Cantidad de iteraciones completas al conjunto de imagenes de entrenamiento
+batch_size = 64 # cantidad de imágenes que se toman a la vez en memoria
 
 # Define the CNN model using KERAS Api
 # This may include convolutional layers, activation, pooling, normalization (Dropout) and Full Connected
 
 riesgo_model = Sequential()
-riesgo_model.add(Conv2D(32, kernel_size=(3, 3),activation='linear',padding='same',input_shape=(21,28,3)))
+riesgo_model.add(Conv2D(32, kernel_size=(3, 3),activation='linear',padding='same',input_shape=(100,100,3)))
 riesgo_model.add(LeakyReLU(alpha=0.1))
 riesgo_model.add(MaxPooling2D((2, 2),padding='same'))
 
@@ -184,7 +193,7 @@ riesgo_train = riesgo_model.fit(
     validation_data=(valid_X, valid_label)
 )
 
-riesgo_model.save(os.path.join(destinationModelPath, 'pass_1_37-epochs_1e2_32-batch_2-layer.h5'))
+riesgo_model.save(os.path.join(destinationModelPath, '10-epochs_1e3_32-batch_2-layer.h5'))
 
 
 test_eval = riesgo_model.evaluate(test_X, test_Y_one_hot, verbose=1)
@@ -236,7 +245,7 @@ for i in range(9):
     ax = axes_corr[r, c]
     if i < num_correct:
         idx = correct[i]
-        ax.imshow(test_X[idx].reshape(21,28,3), cmap='gray', interpolation='none')
+        ax.imshow(test_X[idx].reshape(100,100,3), cmap='gray', interpolation='none')
         ax.set_title("{}, {}".format(sriesgos[predicted_classes[idx]], sriesgos[test_Y[idx]]))
         ax.axis('off')
     else:
@@ -256,7 +265,7 @@ for i in range(9):
     ax = axes_inc[r, c]
     if i < num_incorrect:
         idx = incorrect[i]
-        ax.imshow(test_X[idx].reshape(21,28,3), cmap='gray', interpolation='none')
+        ax.imshow(test_X[idx].reshape(100,100,3), cmap='gray', interpolation='none')
         ax.set_title("{}, {}".format(sriesgos[predicted_classes[idx]], sriesgos[test_Y[idx]]))
         ax.axis('off')
     else:

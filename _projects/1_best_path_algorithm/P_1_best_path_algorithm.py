@@ -100,7 +100,7 @@ def obtener_click_pos(pos, filas, ancho):
 
 # ---------------------------- Logica A* ----------------------------
 
-def get_vecinos(nodo_actual, grid):
+def obtener_vecinos(nodo_actual, grid):
     vecinos = []
     total_filas_columnas = len(grid)
     fila_actual, columna_actual = nodo_actual.get_pos()
@@ -142,10 +142,10 @@ def get_vecinos(nodo_actual, grid):
 
         # Si es valida obtenemos el vecino
         nodo_vecino = grid[nueva_fila][nueva_columna]
+
         # Verificar si es pared continuar con siguiente nodo
         if nodo_vecino.es_pared():
             continue
-
 
         # Verificacion para evitar que se traspasen entre 2 esquinas
         es_movimiento_diagonal = (cambio_fila != 0 and cambio_columna != 0)
@@ -202,6 +202,8 @@ def algoritmo_a_estrella(grid, inicio, fin):
 
     lista_abierta = [posicion_inicial]
 
+    contador_prioridad = 0;
+
     # Ejemplo: {(1, 2): (1, 1)} significa que llegamos a (1, 2) desde (1, 1).
     nodo_fuente = {}
 
@@ -222,13 +224,22 @@ def algoritmo_a_estrella(grid, inicio, fin):
         # Buscar el nodo con menor f_score 
         mejor_posicion = None
         menor_f = float('inf')
+        mayor_g = -1
 
         for posicion_posible in lista_abierta:
             f_posible = f_score[posicion_posible]
+            g_posible = g_score[posicion_posible]
 
+            # Mejor f_score
             if f_posible < menor_f:
                 menor_f = f_posible
+                mayor_g = g_posible
                 mejor_posicion = posicion_posible
+
+            elif f_posible == menor_f:
+                if g_posible > mayor_g:
+                    mayor_g = g_posible
+                    mejor_posicion = posicion_posible
 
         # Guardamos la m mejor posicion al actual
         posicion_actual = mejor_posicion
@@ -250,7 +261,7 @@ def algoritmo_a_estrella(grid, inicio, fin):
         if not nodo_actual.es_inicio() and not nodo_actual.es_fin():
             nodo_actual.hacer_visitado()
 
-        for nodo_vecino, costo_movimiento in get_vecinos(nodo_actual, grid):
+        for nodo_vecino, costo_movimiento in obtener_vecinos(nodo_actual, grid):
             posicion_vecino = nodo_vecino.get_pos()
             g_actual = g_score[posicion_actual]
             temp_g = g_actual + costo_movimiento
@@ -259,10 +270,13 @@ def algoritmo_a_estrella(grid, inicio, fin):
             g_vecino_anterior = g_score[posicion_vecino]
 
             if temp_g < g_vecino_anterior:
+
                 # Registra de donde viene, su nodo padre
                 nodo_fuente[posicion_vecino] = posicion_actual
+
                 # Actualizamos su g_score
                 g_score[posicion_vecino] = temp_g
+
                 # Calcula su f_score actualizado
                 h_vecino = heuristica(posicion_vecino, posicion_final)
                 f_score[posicion_vecino] = temp_g + h_vecino
@@ -270,6 +284,7 @@ def algoritmo_a_estrella(grid, inicio, fin):
                 # Agregamos el vecino a la lista abierta para ser evaluado en un futuro
                 if posicion_vecino not in lista_abierta:
                     lista_abierta.append(posicion_vecino)
+                    
                     # Se pinta de color no visitado
                     if not nodo_vecino.es_inicio() and not nodo_vecino.es_fin():
                         nodo_vecino.hacer_no_visitado()
@@ -278,7 +293,7 @@ def algoritmo_a_estrella(grid, inicio, fin):
     return False
 
 def main(ventana, ancho):
-    FILAS = 10
+    FILAS = 11
     grid = crear_grid(FILAS, ancho)
 
     inicio = None

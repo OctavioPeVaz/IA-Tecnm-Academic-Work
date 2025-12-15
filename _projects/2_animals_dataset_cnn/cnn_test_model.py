@@ -74,7 +74,7 @@ def print_prediction_result(path, label, prob):
 
 def main():
     class Args:
-        model           = r"./trained_models/cnn/animals/43-epochs_1e3_64-batch_3-layer.h5"
+        model           = r"./trained_models/cnn/animals/37-epochs_1e3_64-batch_3-layer_dense-64.h5"
         images          = r"./assets/project_2_test_images"
         labels_dir      = r"./datasets/animals_dataset"
         img_size        = 100

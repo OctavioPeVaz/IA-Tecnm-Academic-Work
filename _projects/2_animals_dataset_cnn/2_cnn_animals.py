@@ -78,8 +78,8 @@ validation_dataset = validation_dataset.map(normalize_img)
 AUTOTUNE = tf.data.AUTOTUNE
 
 # Definimos nombres para los archivos temporales
-cache_file_train = './trained_models/train_cache'
-cache_file_val = './trained_models/val_cache'
+cache_file_train = './train_cache'
+cache_file_val = './val_cache'
 
 # IMPORTANTE: Borrar caches viejos si existen.
 # Si cambiaste el número de imágenes y TF intenta leer el cache viejo, fallará.
@@ -103,7 +103,7 @@ print("Datasets de entrenamiento y validación creados exitosamente.")
 
 #declaramos variables con los parámetros de configuración de la red
 INIT_LR = 1e-3 # Valor inicial de learning rate. El valor 1e-3 corresponde con 0.001
-epochs = 43 # Cantidad de iteraciones completas al conjunto de imagenes de entrenamiento
+epochs = 28 # Cantidad de iteraciones completas al conjunto de imagenes de entrenamiento
 batch_size = 64 # cantidad de imágenes que se toman a la vez en memoria
 
 # Define the CNN model using KERAS Api
@@ -126,11 +126,15 @@ riesgo_model.add(Conv2D(128, kernel_size=(3, 3),activation='linear',padding='sam
 riesgo_model.add(LeakyReLU(alpha=0.1))
 riesgo_model.add(MaxPooling2D((2, 2),padding='same'))
 
-riesgo_model.add(Dropout(0.5))
+riesgo_model.add(Conv2D(256, kernel_size=(3, 3),activation='linear',padding='same'))
+riesgo_model.add(LeakyReLU(alpha=0.1))
+riesgo_model.add(MaxPooling2D((2, 2),padding='same'))
+
+#riesgo_model.add(Dropout(0.3))
 
 riesgo_model.add(Flatten())
 
-riesgo_model.add(Dense(32, activation='linear'))
+riesgo_model.add(Dense(64, activation='linear'))
 riesgo_model.add(LeakyReLU(alpha=0.1))
 riesgo_model.add(Dropout(0.5))
 
@@ -164,7 +168,7 @@ riesgo_train = riesgo_model.fit(
 )
 end_time = time.time()
 
-riesgo_model.save(os.path.join(destinationModelPath, '43-epochs_1e3_64-batch_3-layer.h5'))
+riesgo_model.save(os.path.join(destinationModelPath, '28-epochs_1e3_64-batch_4-layer_dense-64.h5'))
 
 # 3. CALCULAS Y MUESTRAS LA DIFERENCIA
 total_time = end_time - start_time

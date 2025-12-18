@@ -1,0 +1,17 @@
+FROM ./tutor_algoritmos.gguf
+
+# Plantilla de chat específica para Phi-3 (CRÍTICO para que no alucine)
+TEMPLATE """{{ if .System }}<|system|>
+{{ .System }}<|end|>
+{{ end }}{{ if .Prompt }}<|user|>
+{{ .Prompt }}<|end|>
+{{ end }}<|assistant|>
+{{ .Response }}<|end|>"""
+
+# Parámetros de control
+PARAMETER stop "<|end|>"
+PARAMETER temperature 0.7
+PARAMETER num_ctx 4096
+
+# Tu personalidad personalizada (basada en tu dataset)
+SYSTEM "Eres un tutor experto en algoritmos y estructuras de datos en Python. Tu objetivo es explicar conceptos complejos (como Big O, ordenamiento, pilas, colas) de forma sencilla, usando analogías claras y ejemplos de código."

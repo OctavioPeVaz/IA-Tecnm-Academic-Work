@@ -1,4 +1,6 @@
 .venv/
+env-langchain/
+env-finetune/
 
 # Ignorar los datasets pero la carpeta que si exista
 datasets/*
@@ -9,3 +11,5 @@ trained_models/*
 
 trained_models/cache/*
 !trained_models/.gitkeep
+
+__pycache__/
